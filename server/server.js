@@ -26,18 +26,6 @@ db.connect((err) => {
   }
 });
 
-// Login route
-app.post('/login', (req, res) => {
-  const { user_email, user_pass } = req.body;
-
-  const sql = "SELECT user_id, user_name, user_email FROM users WHERE user_email = ? AND user_pass = ?";
-  db.query(sql, [user_email, user_pass], (err, results) => {
-    if (err) return res.status(500).send({ message: "Database error" });
-    if (results.length === 0) return res.status(401).send({ message: "Invalid credentials" });
-
-    res.status(200).send(results[0]);
-  });
-});
 
 // Get tasks
 app.get('/tasks/:user_id', (req, res) => {
@@ -59,6 +47,53 @@ app.post('/tasks', (req, res) => {
     res.send({ message: "Task added" });
   });
 });
+
+
+app.post("/login", (req, res) => {
+
+   console.log("🔥 /login endpoint hit"); 
+  const { email, password } = req.body;
+
+  console.log("📥 Login Attempt:", email, password); // Log input
+
+  const query = "SELECT * FROM users WHERE user_email = ? AND user_password = ?";
+  db.query(query, [email, password], (err, result) => {
+    if (err) {
+      console.error("❌ Login DB Error:", err.sqlMessage);  // Log actual SQL error
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (result.length > 0) {
+      const user = result[0];
+      return res.json({
+        success: true,
+        user_id: user.user_id,
+        user_name: user.user_name,
+      });
+    } else {
+      return res.json({ success: false, message: "Invalid credentials" });
+    }
+  });
+});
+
+
+app.delete('/tasks/:id', (req, res) => {
+  const taskId = req.params.id;
+  const sql = 'DELETE FROM tasks WHERE task_id = ?';
+
+  db.query(sql, [taskId], (err, result) => {
+    if (err) {
+      console.error("❌ Delete error:", err);
+      return res.status(500).json({ message: 'Database error' });
+    }
+    res.json({ success: true, message: 'Task deleted' });
+  });
+});
+
+
+
+
+
 
 // Start server
 app.listen(PORT, () => {

@@ -37,6 +37,23 @@ function Dashboard() {
       .then((data) => setTasks(data));
   };
 
+  const handleLogout = () => {
+  localStorage.clear();
+  window.location.href = "/";
+};
+
+const handleDeleteTask = (task_id) => {
+  fetch(`${API_BASE}/tasks/${task_id}`, {
+    method: "DELETE",
+  })
+    .then(() => fetch(`${API_BASE}/tasks/${user_id}`))
+    .then((res) => res.json())
+    .then((data) => setTasks(data))
+    .catch((err) => console.error(err));
+};
+
+
+
   return (
     <div>
       <div style={{ float: "right", margin: "10px" }}>
@@ -44,14 +61,20 @@ function Dashboard() {
       </div>
 
       <h2>📝 Your Tasks</h2>
-      <ul>
-        {tasks.map(task => (
-          <li key={task.task_id}>
-            <strong>{task.task_title}</strong>: {task.task_desc}
-          </li>
-        ))}
-        
-      </ul>
+        <ul>
+          {tasks.map(task => (
+            <li key={task.task_id}>
+              <strong>{task.task_title}</strong>: {task.task_desc}
+              <button
+                style={{ marginLeft: "10px", color: "red" }}
+                onClick={() => handleDeleteTask(task.task_id)}
+              >
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+
 
       <h3>Add Task</h3>
       <input
@@ -65,6 +88,9 @@ function Dashboard() {
         onChange={(e) => setNewTask({ ...newTask, desc: e.target.value })}
       />
       <button onClick={handleAddTask}>Add Task</button>
+
+      <button onClick={handleLogout}>Logout</button>
+
     </div>
   );
 }
