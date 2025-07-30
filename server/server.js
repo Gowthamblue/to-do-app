@@ -41,7 +41,7 @@ app.get('/tasks/:user_id', (req, res) => {
 app.post('/tasks', (req, res) => {
   const { user_id, task_title, task_desc } = req.body;
 
-  const sql = "INSERT INTO tasks (user_id, task_title, task_desc, task_time) VALUES (?, ?, ?, NOW())";
+  const sql = "INSERT INTO tasks (user_id, task_title, task_desc) VALUES (?, ?, ?)";
   db.query(sql, [user_id, task_title, task_desc], (err, result) => {
     if (err) return res.status(500).send(err);
     res.send({ message: "Task added" });
